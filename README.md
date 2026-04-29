@@ -74,7 +74,7 @@ west build -b qemu_cortex_m3 -d build .
 west build -d build -t run
 ```
 
-You should see a log line containing **Hello.** on the QEMU console.
+You should see **`[sensor]`**, **`[hr]`**, and **`[act]`** log lines as mock samples flow through queues and algorithms (two-second heartbeat summaries plus BPM / activity when updated).
 
 ## Debug
 
@@ -137,6 +137,40 @@ Requires SciPy:
 pip install scipy numpy
 python3 tools/gen_iir_coeffs.py
 ```
+
+## Plot sample waveform (optional)
+
+```bash
+pip install matplotlib
+python3 tools/plot_results.py --ppg data/ppg_sample.csv --out docs/results/ppg_preview.png
+```
+
+Commit the PNG if you want it visible on GitHub without regenerating.
+
+## Results (accuracy story)
+
+What is **demonstrated today**:
+
+- **Firmware CI**: reproducible `qemu_cortex_m3` link of this application.
+- **Host algorithms**: GoogleTest checks IIR impulse response vs SciPy, coarse BPM from a synthetic sine, and activity classification thresholds on synthetic magnitude streams.
+
+What belongs in an interview narrative once you run offline evaluation:
+
+- **Heart rate**: compare BPM tracks against **PhysioNet BIDMC** (or similar) ECG-derived references; store confusion plots and MAE in [**docs/results/**](docs/results/README.md).
+- **Activity**: batch-classify **WISDM** (or exported windows) against labels; report accuracy and confusion matrix under the same folder.
+
+This repo keeps algorithms small and testable; scaling evaluation is intentionally a scripts-and-data exercise, not a second firmware image.
+
+## Future work
+
+- **Hardware**: wire **`Max30102Driver`** / IMU skeleton to real I2C via Zephyr `i2c_dt_spec`, swap mocks at compile-time or factory registration.
+- **Radio**: see [**docs/ble_future.md**](docs/ble_future.md) for standard heart-rate GATT notifications.
+- **Power**: see [**docs/power.md**](docs/power.md) for measurement-oriented hooks.
+- **Renode / advanced simulation**: optional I2C peripheral models once drivers exist.
+
+## Demo checklist (recruiter-facing)
+
+Record a short screen capture showing: clone → `west build` → `west build -t run` (visible **`[sensor]` / `[hr]` / `[act]`** logs) → `cmake`/`ctest` host tests green → GitHub Actions badges green on **`main`**.
 
 ## Phase 1 exit criteria
 

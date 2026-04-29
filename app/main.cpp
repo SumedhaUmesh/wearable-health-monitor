@@ -1,5 +1,5 @@
 /*
- * Wearable Health Monitor — Phase 2–3: sensors + queues + on-device algorithm hooks.
+ * Wearable Health Monitor — sensors, queues, and on-device HR / activity hooks.
  */
 
 #include "algorithms/activity.h"
@@ -53,7 +53,7 @@ int main(void)
 	hr_est.reset();
 	act_clf.reset();
 
-	LOG_INF("Sensor pipeline running (mock PPG + mock IMU + HR/activity hooks).");
+	LOG_INF("[sensor] Pipeline running (mock PPG + mock IMU → algorithms)");
 
 	for (;;) {
 		unsigned ppg_drained = 0U;
@@ -62,7 +62,7 @@ int main(void)
 			++ppg_drained;
 			float bpm = 0.0F;
 			if (hr_est.push_sample(static_cast<double>(last_ppg), bpm)) {
-				LOG_INF("BPM estimate: %.1f", static_cast<double>(bpm));
+				LOG_INF("[hr] BPM estimate: %.1f", static_cast<double>(bpm));
 			}
 		}
 
@@ -76,17 +76,17 @@ int main(void)
 			const float mag = std::sqrt(gx * gx + gy * gy + gz * gz);
 			whm::ActivityLabel lab = whm::ActivityLabel::Still;
 			if (act_clf.push_magnitude(mag, lab)) {
-				LOG_INF("Activity class: %u (steps=%u)", static_cast<unsigned>(lab),
+				LOG_INF("[act] label=%u steps=%u", static_cast<unsigned>(lab),
 					act_clf.steps());
 			}
 		}
 
 		if (imu_drained > 0U) {
-			LOG_INF("queues: PPG drained=%u last=%u; IMU drained=%u last=(%d,%d,%d)",
+			LOG_INF("[sensor] PPG drained=%u last=%u; IMU drained=%u last=(%d,%d,%d)",
 				ppg_drained, last_ppg, imu_drained, last_imu.x, last_imu.y,
 				last_imu.z);
 		} else {
-			LOG_INF("queues: PPG drained=%u last=%u; IMU drained=0", ppg_drained,
+			LOG_INF("[sensor] PPG drained=%u last=%u; IMU drained=0", ppg_drained,
 				last_ppg);
 		}
 
