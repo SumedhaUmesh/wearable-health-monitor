@@ -1,6 +1,6 @@
 # Wearable Health Monitor (Firmware, simulated)
 
-C++17 firmware for a wrist-worn health monitor, built with **Zephyr RTOS** and run on **ARM Cortex-M3 in QEMU** (`qemu_cortex_m3`). No hardware required for bring-up. Later phases add sensor drivers, dataset replay, and signal processing — see [`docs/architecture.md`](docs/architecture.md).
+C++17 firmware for a wrist-worn health monitor, built with **Zephyr RTOS** and run on **ARM Cortex-M3 in QEMU** (`qemu_cortex_m3`). No hardware required for bring-up. **Phase 2** adds `IPpgDriver` / `IImuDriver`, MAX30102 + IMU **skeleton** drivers (no I2C yet), **mock** drivers that replay the same numbers as [`data/ppg_sample.csv`](data/ppg_sample.csv) and [`data/imu_sample.csv`](data/imu_sample.csv), and a **`SensorManager`** that fills Zephyr message queues. **Phase 3** adds **heart-rate** and **activity** algorithms (C++17, no Zephyr in the core math), **GoogleTest** host coverage in [`tests/`](tests/), and small **Python** helpers under [`tools/`](tools/) — see [`docs/architecture.md`](docs/architecture.md).
 
 [![Firmware CI](https://github.com/SumedhaUmesh/wearable-health-monitor/actions/workflows/ci.yml/badge.svg)](https://github.com/SumedhaUmesh/wearable-health-monitor/actions/workflows/ci.yml)
 
@@ -108,7 +108,35 @@ Open a PR into `develop`. When ready, PR `develop` → `main` or merge locally a
 
 ## CI
 
-[`.github/workflows/ci.yml`](.github/workflows/ci.yml) runs on pushes and pull requests to **`main`** and **`develop`**: West fetch, Zephyr SDK install (cached), and `west build -b qemu_cortex_m3`.
+[`.github/workflows/ci.yml`](.github/workflows/ci.yml) runs on pushes and pull requests to **`main`** and **`develop`**:
+
+- **Firmware CI**: West fetch, Zephyr SDK install (cached), `west build -b qemu_cortex_m3`.
+- **Host unit tests**: CMake + Ninja + GoogleTest in [`tests/`](tests/) (no Zephyr).
+
+## Host unit tests (algorithms)
+
+From the repo root (no Zephyr needed):
+
+```bash
+cmake -S tests -B build-tests -G Ninja
+cmake --build build-tests
+ctest --test-dir build-tests --output-on-failure
+```
+
+## Offline CSV check
+
+```bash
+python3 tools/validate.py --imu data/imu_sample.csv
+```
+
+## Regenerate IIR coefficients (optional)
+
+Requires SciPy:
+
+```bash
+pip install scipy numpy
+python3 tools/gen_iir_coeffs.py
+```
 
 ## Phase 1 exit criteria
 

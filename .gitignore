@@ -4,8 +4,12 @@ zephyr/
 modules/
 bootloader/
 
+# Zephyr SDK (local install; never commit — often 1GB+)
+zephyr-sdk-*/
+
 # Build outputs
 build/
+build-tests/
 build-*/
 
 # Python
