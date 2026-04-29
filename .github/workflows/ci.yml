@@ -23,6 +23,10 @@ jobs:
   build-qemu-cortex-m3:
     runs-on: ubuntu-22.04
     timeout-minutes: 45
+    defaults:
+      run:
+        working-directory: ${{ github.workspace }}
+        shell: bash
 
     steps:
       - name: Checkout application (manifest repo)
@@ -42,16 +46,22 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Install west
-        run: pip install west
-
-      - name: West init and update
+      # One shell: west on PATH, same cwd, resolve Zephyr path (do not assume ./zephyr).
+      - name: Install west, fetch Zephyr, install Python requirements
         run: |
+          set -euxo pipefail
+          cd "${GITHUB_WORKSPACE}"
+          pip install west
+          west --version
           west init -l .
           west update
-
-      - name: Install Zephyr Python requirements
-        run: pip install -r zephyr/scripts/requirements.txt
+          echo "West topdir: $(west topdir)"
+          ls -la
+          west list
+          ZEPHYR_SRC="$(west list -f '{posixpath}' zephyr)"
+          echo "Zephyr project path: ${ZEPHYR_SRC}"
+          test -f "${ZEPHYR_SRC}/scripts/requirements.txt"
+          pip install -r "${ZEPHYR_SRC}/scripts/requirements.txt"
 
       - name: Cache Zephyr SDK
         id: cache-sdk
