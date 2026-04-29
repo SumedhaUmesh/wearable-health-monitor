@@ -1,0 +1,20 @@
+# West / Zephyr workspace artifacts (kept out of git)
+.west/
+zephyr/
+modules/
+bootloader/
+
+# Build outputs
+build/
+build-*/
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+
+# IDE / OS
+.idea/
+.vscode/
+.DS_Store
+*.swp

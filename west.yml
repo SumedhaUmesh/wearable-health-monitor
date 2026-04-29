@@ -1,0 +1,13 @@
+# West manifest: Zephyr is the only imported project. After `west init -l .` and
+# `west update`, the workspace root contains this repo plus a `zephyr/` checkout.
+manifest:
+  version: "0.13"
+  remotes:
+    - name: zephyrproject-rtos
+      url-base: https://github.com/zephyrproject-rtos
+  projects:
+    - name: zephyr
+      remote: zephyrproject-rtos
+      # Pinned for reproducible CI and local dev; bump intentionally when upgrading.
+      revision: v3.7.0
+      import: true
