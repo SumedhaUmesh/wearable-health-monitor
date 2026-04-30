@@ -9,13 +9,27 @@
 #include "drivers/mock_ppg_driver.h"
 #include "services/sensor_manager.h"
 
-#include <cmath>
+#include <math.h>
 
 #include <zephyr/kernel.h>
 #include <zephyr/logging/log.h>
 #include <zephyr/sys/util.h>
 
 LOG_MODULE_REGISTER(app, LOG_LEVEL_INF);
+
+static const char *activity_label_str(whm::ActivityLabel lab)
+{
+	switch (lab) {
+	case whm::ActivityLabel::Still:
+		return "still";
+	case whm::ActivityLabel::Walking:
+		return "walking";
+	case whm::ActivityLabel::Running:
+		return "running";
+	default:
+		return "?";
+	}
+}
 
 int main(void)
 {
@@ -68,17 +82,23 @@ int main(void)
 
 		unsigned imu_drained = 0U;
 		ImuSample last_imu{};
+		bool act_window_done = false;
+		whm::ActivityLabel last_act_lab = whm::ActivityLabel::Still;
 		while (k_msgq_get(&imu_q, &last_imu, K_NO_WAIT) == 0) {
 			++imu_drained;
 			const float gx = static_cast<float>(last_imu.x);
 			const float gy = static_cast<float>(last_imu.y);
 			const float gz = static_cast<float>(last_imu.z);
-			const float mag = std::sqrt(gx * gx + gy * gy + gz * gz);
+			const float mag = sqrtf(gx * gx + gy * gy + gz * gz);
 			whm::ActivityLabel lab = whm::ActivityLabel::Still;
 			if (act_clf.push_magnitude(mag, lab)) {
-				LOG_INF("[act] label=%u steps=%u", static_cast<unsigned>(lab),
-					act_clf.steps());
+				act_window_done = true;
+				last_act_lab = lab;
 			}
+		}
+		if (act_window_done) {
+			LOG_INF("[act] label=%s steps=%u", activity_label_str(last_act_lab),
+				act_clf.steps());
 		}
 
 		if (imu_drained > 0U) {

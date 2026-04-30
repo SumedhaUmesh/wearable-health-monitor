@@ -1,7 +1,5 @@
 #include "activity.h"
 
-#include <cmath>
-
 namespace whm {
 
 ActivityClassifier::ActivityClassifier(const ActivityConfig& cfg) : cfg_(cfg) {}

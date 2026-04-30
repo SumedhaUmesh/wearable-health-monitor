@@ -6,6 +6,10 @@ bootloader/
 
 # Zephyr SDK (local install; never commit — often 1GB+)
 zephyr-sdk-*/
+# SDK / toolchain downloads (never commit — they balloon repo and push time)
+*.tar.xz
+*.tar.gz
+*.zip
 
 # Build outputs
 build/

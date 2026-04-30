@@ -1,5 +1,7 @@
 # Architecture
 
+See [**engineering_overview.md**](engineering_overview.md) for assumptions, non-goals, and what CI proves.
+
 This firmware is organized in layers so sensor hardware can be swapped for mocks or replay without changing algorithms or the application entrypoint.
 
 ## Layers
@@ -14,7 +16,7 @@ This firmware is organized in layers so sensor hardware can be swapped for mocks
 
 ## Data flow
 
-PPG and IMU drivers implement `IPpgDriver` / `IImuDriver`. **`MockPpgDriver`** and **`MockImuDriver`** replay small waveforms (same numbers as [`data/ppg_sample.csv`](../data/ppg_sample.csv) and [`data/imu_sample.csv`](../data/imu_sample.csv)) so QEMU runs without a filesystem. **`Max30102Driver`** and **`ImuSkeletonDriver`** are register-map skeletons with I2C left unimplemented for a later HAL pass. **`SensorManager`** uses Zephyr `k_work_delayable` on the system workqueue to read each driver at its nominal rate and enqueue raw samples. **`main`** drains queues into **`HeartRateEstimator`** and **`ActivityClassifier`** while tagging logs with `[sensor]` / `[hr]` / `[act]` so reviewers can follow the pipeline in QEMU output.
+PPG and IMU drivers implement `IPpgDriver` / `IImuDriver`. **`MockPpgDriver`** and **`MockImuDriver`** replay fixed sequences (same numbers as [`data/ppg_sample.csv`](../data/ppg_sample.csv) and [`data/imu_sample.csv`](../data/imu_sample.csv); PPG is a long ~72 BPM sine for visible `[hr]` in QEMU) so QEMU runs without a filesystem. **`Max30102Driver`** and **`ImuSkeletonDriver`** are register-map skeletons with I2C left unimplemented for a later HAL pass. **`SensorManager`** uses Zephyr `k_work_delayable` on the system workqueue to read each driver at its nominal rate and enqueue raw samples. **`main`** drains queues into **`HeartRateEstimator`** and **`ActivityClassifier`** while tagging logs with `[sensor]` / `[hr]` / `[act]` so reviewers can follow the pipeline in QEMU output.
 
 ## Build system
 

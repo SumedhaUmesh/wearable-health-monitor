@@ -2,8 +2,6 @@
 
 #include "heart_rate_coeffs.h"
 
-#include <cmath>
-
 namespace whm {
 
 SosBandpass25Hz::SosBandpass25Hz() = default;
@@ -96,7 +94,7 @@ bool HeartRateEstimator::compute_bpm(float& out)
 	}
 	const double mean_samples = sum_interval / static_cast<double>(intervals);
 	const double bpm = 60.0 * static_cast<double>(kSampleRateHz) / mean_samples;
-	if (!std::isfinite(bpm) || bpm < 30.0 || bpm > 220.0) {
+	if ((bpm != bpm) || bpm < 30.0 || bpm > 220.0) {
 		return false;
 	}
 	out = static_cast<float>(bpm);

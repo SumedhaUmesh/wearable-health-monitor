@@ -4,6 +4,8 @@ C++17 firmware for a wrist-worn health monitor, built with **Zephyr RTOS** and r
 
 [![Firmware CI](https://github.com/SumedhaUmesh/wearable-health-monitor/actions/workflows/ci.yml/badge.svg)](https://github.com/SumedhaUmesh/wearable-health-monitor/actions/workflows/ci.yml)
 
+**Engineering intent, assumptions, and verification:** [**docs/engineering_overview.md**](docs/engineering_overview.md).
+
 ## Architecture
 
 ```mermaid
@@ -41,6 +43,8 @@ flowchart TB
 - **Zephyr SDK** with the `arm-zephyr-eabi` toolchain (see [Zephyr Getting Started](https://docs.zephyrproject.org/latest/develop/getting_started/index.html))
 
 On macOS you can use Homebrew for CMake/Ninja; install the Zephyr SDK by following the official guide and set `ZEPHYR_SDK_INSTALL_DIR` to the SDK root.
+
+Do **not** commit SDK archives (`*.tar.xz`, etc.) or extracted SDK trees; they are listed in [`.gitignore`](.gitignore).
 
 ## Clone and workspace setup
 
